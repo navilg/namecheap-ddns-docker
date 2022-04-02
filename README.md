@@ -55,4 +55,17 @@ docker start server.example.com # To start after its stopped
 docker rm server.example.com -f # To remove
 ```
 
+## Build your own image
+
+To build your own image
+
+* Clone this repo
+
+* Run docker build
+
+```
+# Replace OS and ARCH values with valid values of GOlang environment variables GOOS and GOARCH.
+docker build --build-arg OS=linux --build-arg ARCH=amd64 --build-arg VERSION=1.0.0 -t linuxshots/namecheap-ddns:1.0.0 . 
+```
+
 NOTE: This sets the TTL to Automatic i.e. 30 minutes. Currently, There is no way provided by Namecheap to set custom TTL in Dynamic DDNS.
