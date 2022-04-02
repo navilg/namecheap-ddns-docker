@@ -33,7 +33,11 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 Suppose, You need DDNS for `server.example.com`
 
 ```
+# For Linux running on amd64 arch
 docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:1.0.0
+
+# For linux running on arm64 arch
+docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:arm64v8-linux-1.0.0
 ```
 
 Here, 
