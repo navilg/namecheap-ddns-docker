@@ -18,6 +18,8 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 
 ## How to use it
 
+* Change nameserver of you domain to BasicDNS. `Namecheap Account -> Domain List -> Manage -> Domain -> NAMESERVERS -> Choose BasicDNS from dropdown`
+
 * Enable Dynamic DNS for your domain from Namecheap. `Namecheap Account -> Domain List -> Manage -> Advanced DNS -> Dynamic DNS -> Toggle Status`
 
 * Copy the Dynamic DNS password which is generated after enabling Dynamic DNS. Keep it safe and handy.
