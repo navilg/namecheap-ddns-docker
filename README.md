@@ -18,6 +18,8 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 
 ## How to use it
 
+* Change nameserver of you domain to BasicDNS or PremiumDNS or FreeDNS. `Namecheap Account -> Domain List -> Manage -> Domain -> NAMESERVERS -> Choose BasicDNS from dropdown`
+
 * Enable Dynamic DNS for your domain from Namecheap. `Namecheap Account -> Domain List -> Manage -> Advanced DNS -> Dynamic DNS -> Toggle Status`
 
 * Copy the Dynamic DNS password which is generated after enabling Dynamic DNS. Keep it safe and handy.
@@ -31,7 +33,11 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 Suppose, You need DDNS for `server.example.com`
 
 ```
+# For Linux running on amd64 arch
 docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:1.0.0
+
+# For linux running on arm64 arch
+docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:arm64v8-linux-1.0.0
 ```
 
 Here, 
