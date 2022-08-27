@@ -29,12 +29,19 @@ func updateRecord(domain, host, password string) {
 					DDNSLogger(ErrorLog, host, domain, err.Error())
 				}
 
-				err = setDNSRecord(host, domain, password, pubIp)
-				if err != nil {
-					DDNSLogger(ErrorLog, host, domain, err.Error())
+				currentIp := os.Getenv("NC_PUB_IP")
+
+				if currentIp == pubIp {
+					DDNSLogger(InformationLog, host, domain, "DNS record is same as current IP. "+pubIp)
+				} else {
+					err = setDNSRecord(host, domain, password, pubIp)
+					if err != nil {
+						DDNSLogger(ErrorLog, host, domain, err.Error())
+					} else {
+						DDNSLogger(InformationLog, host, domain, "Record updated (ip: "+currentIp+"->"+pubIp+")")
+					}
 				}
 
-				DDNSLogger(InformationLog, host, domain, "Record updated (ip: "+os.Getenv("NC_PUB_IP")+"->"+pubIp+")")
 			}
 		}
 
@@ -66,22 +73,31 @@ func getPubIP() (string, error) {
 
 	var ipbody GetIPBody
 
-	response, err := http.Get("https://ipinfo.io/json")
+	apiclient := &http.Client{Timeout: httpTimeout}
+
+	response, err := apiclient.Get("https://api.ipify.org?format=json")
 	if err != nil {
-		return "", nil
+		response, err = apiclient.Get("https://ipinfo.io/json")
+		if err != nil {
+			return "", nil
+		}
 	}
 
 	defer response.Body.Close()
 	bodyBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		// fmt.Println(err.Error())
-		return "", err
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched." + err.Error())}
 	}
 
 	err = json.Unmarshal(bodyBytes, &ipbody)
 	if err != nil {
 		// fmt.Println(err.Error())
-		return "", err
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched." + err.Error())}
+	}
+
+	if ipbody.IP == "" {
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched. Empty IP value detected.")}
 	}
 
 	return ipbody.IP, nil
@@ -95,7 +111,7 @@ func setDNSRecord(host, domain, password, pubIp string) error {
 
 	ncURL := "https://dynamicdns.park-your-domain.com/update?host=" + host + "&domain=" + domain + "&password=" + password + "&ip=" + pubIp
 
-	apiclient := &http.Client{}
+	apiclient := &http.Client{Timeout: httpTimeout}
 
 	req, err := http.NewRequest("GET", ncURL, nil)
 	if err != nil {
