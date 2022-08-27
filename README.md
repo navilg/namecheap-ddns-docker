@@ -33,11 +33,7 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 Suppose, You need DDNS for `server.example.com`
 
 ```
-# For Linux running on amd64 arch
-docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:1.0.0
-
-# For linux running on arm64 arch
-docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns:arm64v8-linux-1.0.0
+docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns
 ```
 
 Here, 
@@ -71,7 +67,7 @@ To build your own image
 
 ```
 # Replace OS and ARCH values with valid values of GOlang environment variables GOOS and GOARCH.
-docker build --build-arg OS=linux --build-arg ARCH=amd64 --build-arg VERSION=1.0.0 -t linuxshots/namecheap-ddns:1.0.0 . 
+docker build --build-arg VERSION=1.0.0 -t linuxshots/namecheap-ddns . 
 ```
 
 NOTE: This sets the TTL to Automatic i.e. 30 minutes. Currently, There is no way provided by Namecheap to set custom TTL in Dynamic DDNS.

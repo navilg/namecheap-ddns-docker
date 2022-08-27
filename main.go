@@ -24,10 +24,10 @@ func main() {
 
 	pubIp, err := getPubIP()
 	if err != nil {
-		DDNSLogger(ErrorLog, *host, *domain, "Failed to get public Ip of your machine. "+err.Error())
+		DDNSLogger(ErrorLog, *host, *domain, err.Error())
 	} else {
 		setDNSRecord(*host, *domain, *password, pubIp)
-		DDNSLogger(InformationLog, *host, *domain, "Record updated.")
+		DDNSLogger(InformationLog, *host, *domain, "Record updated. "+pubIp)
 	}
 
 	updateRecord(*domain, *host, *password)
