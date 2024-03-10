@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-16"?>
+<interface-response>
+  <Command>SETDNSHOST</Command>
+  <Language>eng</Language>
+  <ErrCount>1</ErrCount>
+  <errors>
+    <Err1>Passwords do not match</Err1>
+  </errors>
+  <ResponseCount>1</ResponseCount>
+  <responses>
+    <response>
+      <Description>Passwords do not match</Description>
+      <ResponseNumber>304156</ResponseNumber>
+      <ResponseString>Validation error; invalid ; password</ResponseString>
+    </response>
+  </responses>
+  <Done>true</Done>
+  <debug><![CDATA[]]></debug>
+</interface-response>
