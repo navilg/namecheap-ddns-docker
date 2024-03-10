@@ -26,8 +26,12 @@ func main() {
 	if err != nil {
 		DDNSLogger(ErrorLog, *host, *domain, err.Error())
 	} else {
-		setDNSRecord(*host, *domain, *password, pubIp)
-		DDNSLogger(InformationLog, *host, *domain, "Record updated. "+pubIp)
+		if err = setDNSRecord(*host, *domain, *password, pubIp); err != nil {
+			DDNSLogger(ErrorLog, *host, *domain, err.Error())
+			DDNSLogger(WarningLog, *host, *domain, "Ignoring above error. If this is not right, Re-run the process after fixing the error")
+		} else {
+			DDNSLogger(InformationLog, *host, *domain, "Record updated. "+pubIp)
+		}
 	}
 
 	updateRecord(*domain, *host, *password)

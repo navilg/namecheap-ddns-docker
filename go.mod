@@ -1,3 +1,3 @@
 module github.com/navilg/namecheap-ddns-docker
 
-go 1.19
+go 1.22

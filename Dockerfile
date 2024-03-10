@@ -1,11 +1,11 @@
-FROM golang:1.19.0-alpine3.16 as build
+FROM golang:1.22.1-alpine3.19 as build
 ARG OS
 ARG ARCH
 COPY . /build/
 WORKDIR /build
 RUN go mod download && go build -o ncddns
 
-FROM alpine:3.16
+FROM alpine:3.19
 ARG VERSION
 ARG user=ncddns
 ARG group=ncddns
