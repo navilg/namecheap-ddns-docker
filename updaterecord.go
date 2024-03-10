@@ -2,11 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -84,7 +87,7 @@ func getPubIP() (string, error) {
 	}
 
 	defer response.Body.Close()
-	bodyBytes, err := ioutil.ReadAll(response.Body)
+	bodyBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		// fmt.Println(err.Error())
 		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched." + err.Error())}
@@ -97,7 +100,7 @@ func getPubIP() (string, error) {
 	}
 
 	if ipbody.IP == "" {
-		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched. Empty IP value detected.")}
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched. Empty IP value detected")}
 	}
 
 	return ipbody.IP, nil
@@ -105,6 +108,17 @@ func getPubIP() (string, error) {
 }
 
 func setDNSRecord(host, domain, password, pubIp string) error {
+
+	type InterfaceError struct {
+		Err1 string `xml:"Err1"`
+	}
+
+	type InterfaceResponse struct {
+		ErrorCount int            `xml:"ErrCount"`
+		Errors     InterfaceError `xml:"errors"`
+	}
+
+	var interfaceResponse InterfaceResponse
 
 	// Link from Namecheap knowledge article.
 	// https://www.namecheap.com/support/knowledgebase/article.aspx/29/11/how-to-dynamically-update-the-hosts-ip-with-an-http-request/
@@ -131,8 +145,37 @@ func setDNSRecord(host, domain, password, pubIp string) error {
 
 	defer response.Body.Close()
 
-	if response.StatusCode != 200 {
-		return &CustomError{ErrorCode: response.StatusCode, Err: errors.New(response.Status)}
+	bodyBytes, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+
+	// Below function removes first line (below line) from response body because golang xml encoder does not support utf-16
+	// <?xml version="1.0" encoding="utf-16"?>
+	modifyBodyBytes := func(bodyBytes []byte) []byte {
+
+		bodyString := string(bodyBytes)
+
+		read_lines := strings.Split(bodyString, "\n")
+
+		var updatedString string
+
+		for i, line := range read_lines {
+			if i != 0 {
+				updatedString = fmt.Sprintf("%s%s\n", updatedString, line)
+			}
+		}
+
+		return []byte(updatedString)
+	}
+
+	err = xml.Unmarshal(modifyBodyBytes(bodyBytes), &interfaceResponse)
+	if err != nil {
+		return err
+	}
+
+	if interfaceResponse.ErrorCount != 0 {
+		return &CustomError{ErrorCode: -1, Err: errors.New(interfaceResponse.Errors.Err1)}
 	}
 
 	os.Setenv("NC_PUB_IP", pubIp)

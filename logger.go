@@ -21,7 +21,7 @@ func DDNSLogger(logType, host, domain, message string) {
 	)
 
 	StdoutInfoLogger = log.New(os.Stdout, "INFO ", log.Ldate|log.Ltime)
-	StdoutWarningLogger = log.New(os.Stdout, "WARN ", log.Ldate|log.Ltime)
+	StdoutWarningLogger = log.New(os.Stdout, "WARNING ", log.Ldate|log.Ltime)
 	StdoutErrorLogger = log.New(os.Stdout, "ERROR ", log.Ldate|log.Ltime)
 
 	if logType == "INFO" {
