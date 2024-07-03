@@ -28,8 +28,8 @@ func main() {
 		DDNSLogger(ErrorLog, *hosts, *domain, err.Error())
 	} else {
 		DDNSLogger(InformationLog, *hosts, *domain, "Updating all hosts.")
-		for _, host := range strings.Split(hosts, ",") {
-			if err = setDNSRecord(*host, *domain, *password, pubIp); err != nil {
+		for _, host := range strings.Split(*hosts, ",") {
+			if err = setDNSRecord(host, *domain, *password, pubIp); err != nil {
 				DDNSLogger(ErrorLog, *hosts, *domain, err.Error())
 				DDNSLogger(WarningLog, *hosts, *domain, "Above error occured while updating host " + host + ", ignoring. If this is not right, Re-run the process after fixing the error")
 			} else {
