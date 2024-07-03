@@ -24,7 +24,7 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 
 * Copy the Dynamic DNS password which is generated after enabling Dynamic DNS. Keep it safe and handy.
 
-* Add a record of type `A + Dynamic DNS` with required host name.
+* Add a record of type `A + Dynamic DNS` with required host name(s).
 
 * Install docker on server.
 
@@ -37,7 +37,7 @@ docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='ser
 ```
 
 Here, 
-`NC_HOST` is host name added in Namecheap record.
+`NC_HOST` are the host name(s) added in the Namecheap record, seperated by a comma.
 
 `NC_DOMAIN` is your domain name.
 
