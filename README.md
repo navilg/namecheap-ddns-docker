@@ -33,11 +33,11 @@ If your server do not have static IP, i.e. When Public IP of your server / route
 Suppose, You need DDNS for `server.example.com`
 
 ```
-docker run --name server.example.com -d --restart unless-stopped -e NC_HOST='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns
+docker run --name server.example.com -d --restart unless-stopped -e NC_HOSTS='server' -e NC_DOMAIN='example.com' -e NC_PASS='DynamicDDNSPa2w0rd' linuxshots/namecheap-ddns
 ```
 
 Here, 
-`NC_HOST` are the host name(s) added in the Namecheap record, seperated by a comma.
+`NC_HOSTS` are the host name(s) added in the Namecheap record, seperated by a comma.
 
 `NC_DOMAIN` is your domain name.
 
