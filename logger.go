@@ -12,7 +12,7 @@ const (
 	WarningLog     string = "WARN"
 )
 
-func DDNSLogger(logType, host, domain, message string) {
+func DDNSLogger(logType, hosts, domain, message string) {
 
 	var (
 		StdoutInfoLogger    *log.Logger
@@ -25,12 +25,12 @@ func DDNSLogger(logType, host, domain, message string) {
 	StdoutErrorLogger = log.New(os.Stdout, "ERROR ", log.Ldate|log.Ltime)
 
 	if logType == "INFO" {
-		StdoutInfoLogger.Println(host+"."+domain, message)
+		StdoutInfoLogger.Println(hosts+"."+domain, message)
 	} else if logType == "WARN" {
-		StdoutWarningLogger.Println(host+"."+domain, message)
+		StdoutWarningLogger.Println(hosts+"."+domain, message)
 	} else if logType == "ERROR" {
-		StdoutErrorLogger.Println(host+"."+domain, message)
+		StdoutErrorLogger.Println(hosts+"."+domain, message)
 	} else {
-		fmt.Println(host+"."+domain, message)
+		fmt.Println(hosts+"."+domain, message)
 	}
 }
