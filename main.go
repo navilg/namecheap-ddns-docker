@@ -13,6 +13,7 @@ func main() {
 	domain := flag.String("domain", "", "Domain name e.g. example.com")
 	host := flag.String("host", "", "Subdomain or hostname e.g. www")
 	password := flag.String("password", "", "Dynamic DNS Password from Namecheap")
+	// iPCacheTimeOutSeconds := flag.Int("ip-cache-timeout", 86400, "IP cache timeout in seconds.")
 
 	flag.Parse()
 	if *domain == "" || *host == "" || *password == "" {
