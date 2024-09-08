@@ -33,8 +33,18 @@ func updateRecord(domain, host, password string) {
 				}
 
 				currentIp := os.Getenv("NC_PUB_IP")
+				lastIpUpdatedStr := os.Getenv("NC_PUB_IP_TIME")
+				lastIpUpdatedDuration := 0.0
 
-				if currentIp == pubIp {
+				lastIpUpdated, err := time.Parse("2006-01-02 15:04:05", lastIpUpdatedStr)
+				if err != nil {
+					DDNSLogger(WarningLog, host, domain, "Not able to fetch last IP updated time.")
+				} else {
+					lastIpUpdatedDuration = time.Since(lastIpUpdated).Seconds()
+				}
+
+				if currentIp == pubIp && lastIpUpdatedDuration < 86400 {
+					// If currentIp is same as whats set in env var NC_PUB_IP AND last time IP updated in NC was less than 24 hrs ago.
 					DDNSLogger(InformationLog, host, domain, "DNS record is same as current IP. "+pubIp)
 				} else {
 					err = setDNSRecord(host, domain, password, pubIp)
@@ -178,7 +188,10 @@ func setDNSRecord(host, domain, password, pubIp string) error {
 		return &CustomError{ErrorCode: -1, Err: errors.New(interfaceResponse.Errors.Err1)}
 	}
 
+	currentTime := time.Now()
+
 	os.Setenv("NC_PUB_IP", pubIp)
+	os.Setenv("NC_PUB_IP_TIME", currentTime.String())
 
 	return nil
 }
