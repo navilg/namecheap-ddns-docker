@@ -34,18 +34,27 @@ func updateRecord(domain, host, password string) {
 
 				currentIp := os.Getenv("NC_PUB_IP")
 				lastIpUpdatedStr := os.Getenv("NC_PUB_IP_TIME")
-				lastIpUpdatedDuration := 0.0
+				var lastIpUpdatedDuration float64
 
+				fmt.Println(lastIpUpdatedStr)
 				lastIpUpdated, err := time.Parse("2006-01-02 15:04:05", lastIpUpdatedStr)
 				if err != nil {
-					DDNSLogger(WarningLog, host, domain, "Not able to fetch last IP updated time.")
+					DDNSLogger(WarningLog, host, domain, "Not able to fetch last IP updated time. "+err.Error())
+					lastIpUpdatedDuration = 0
 				} else {
-					lastIpUpdatedDuration = time.Since(lastIpUpdated).Seconds()
+					currentTime := time.Now().Format("2006-01-02 15:04:05")
+					currentTimeF, err := time.Parse("2006-01-02 15:04:05", currentTime)
+					if err != nil {
+						DDNSLogger(WarningLog, host, domain, "Not able to fetch last IP updated time. "+err.Error())
+						lastIpUpdatedDuration = 0
+					} else {
+						lastIpUpdatedDuration = currentTimeF.Sub(lastIpUpdated).Seconds()
+					}
 				}
 
-				if currentIp == pubIp && lastIpUpdatedDuration < 86400 {
+				if currentIp == pubIp && lastIpUpdatedDuration < expiryTime {
 					// If currentIp is same as whats set in env var NC_PUB_IP AND last time IP updated in NC was less than 24 hrs ago.
-					DDNSLogger(InformationLog, host, domain, "DNS record is same as current IP. "+pubIp)
+					DDNSLogger(InformationLog, host, domain, "DNS record is same as current IP "+pubIp+". Last record update request made "+fmt.Sprintf("%f", lastIpUpdatedDuration)+" seconds ago.")
 				} else {
 					err = setDNSRecord(host, domain, password, pubIp)
 					if err != nil {
@@ -191,7 +200,7 @@ func setDNSRecord(host, domain, password, pubIp string) error {
 	currentTime := time.Now()
 
 	os.Setenv("NC_PUB_IP", pubIp)
-	os.Setenv("NC_PUB_IP_TIME", currentTime.String())
+	os.Setenv("NC_PUB_IP_TIME", currentTime.Format("2006-01-02 15:04:05"))
 
 	return nil
 }

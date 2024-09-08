@@ -15,8 +15,10 @@ func (err *CustomError) Error() string {
 }
 
 var (
-	version          string        = "1.2.0-go1.22"
+	version          string        = "1.3.0-go1.23"
 	daemon_poll_time time.Duration = 1 * time.Minute // Time in minute
 	gitrepo          string        = "https://github.com/navilg/namecheap-ddns-docker"
 	httpTimeout      time.Duration = 30 * time.Second
+	expiryTime       float64       = 86400 // Ip env timeout in seconds (24hrs.)
+	// expiryTime float64 = 600
 )
