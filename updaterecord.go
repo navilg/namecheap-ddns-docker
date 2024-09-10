@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-func updateRecord(domain, host, password string) {
+func updateRecord(domain, host, password, custom_ipcheck_url string) {
 
 	DDNSLogger(InformationLog, "", "", "Started daemon process")
 
@@ -27,16 +28,17 @@ func updateRecord(domain, host, password string) {
 				return
 
 			case <-ticker.C:
-				pubIp, err := getPubIP()
+				pubIp, err := getPubIP(custom_ipcheck_url)
 				if err != nil {
 					DDNSLogger(ErrorLog, host, domain, err.Error())
+					continue // Move to the next tick
 				}
 
 				currentIp := os.Getenv("NC_PUB_IP")
 				lastIpUpdatedStr := os.Getenv("NC_PUB_IP_TIME")
 				var lastIpUpdatedDuration float64
 
-				fmt.Println(lastIpUpdatedStr)
+				//fmt.Println(lastIpUpdatedStr)
 				lastIpUpdated, err := time.Parse("2006-01-02 15:04:05", lastIpUpdatedStr)
 				if err != nil {
 					DDNSLogger(WarningLog, host, domain, "Not able to fetch last IP updated time. "+err.Error())
@@ -87,43 +89,74 @@ func updateRecord(domain, host, password string) {
 	done <- true
 }
 
-func getPubIP() (string, error) {
+func fetchIPFromURL(url, sourceName string) (*http.Response, error) {
+	apiclient := &http.Client{Timeout: httpTimeout}
 
+	response, err := apiclient.Get(url)
+	if err != nil {
+		DDNSLogger(DebugLog, "", "", "IP could not be fetched from "+sourceName+" - error: "+err.Error())
+		return nil, err
+	}
+
+	DDNSLogger(DebugLog, "", "", "IP fetched from "+sourceName)
+	return response, nil
+}
+
+func getPubIP(custom_ipcheck_url string) (string, error) {
 	type GetIPBody struct {
 		IP string `json:"ip"`
 	}
 
 	var ipbody GetIPBody
+	var response *http.Response
+	var err error
 
-	apiclient := &http.Client{Timeout: httpTimeout}
-
-	response, err := apiclient.Get("https://api.ipify.org?format=json")
-	if err != nil {
-		response, err = apiclient.Get("https://ipinfo.io/json")
-		if err != nil {
-			return "", nil
+	if custom_ipcheck_url != "" {
+		response, err = fetchIPFromURL(custom_ipcheck_url, "custom URL")
+		if err == nil {
+			goto ParseResponse
 		}
 	}
 
-	defer response.Body.Close()
-	bodyBytes, err := io.ReadAll(response.Body)
+	response, err = fetchIPFromURL("https://ipinfo.io/json", "ipinfo.io")
 	if err != nil {
-		// fmt.Println(err.Error())
-		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched." + err.Error())}
+		response, err = fetchIPFromURL("https://api.ipify.org/?format=json", "ipify.org")
+		if err != nil {
+			return "", &CustomError{ErrorCode: -1, Err: errors.New("IP could not be fetched from either endpoint")}
+		}
 	}
 
-	err = json.Unmarshal(bodyBytes, &ipbody)
+ParseResponse:
+	defer response.Body.Close()
+
+	rawResponse, err := io.ReadAll(response.Body)
 	if err != nil {
-		// fmt.Println(err.Error())
-		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched." + err.Error())}
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched: " + err.Error())}
+	}
+	response.Body = io.NopCloser(bytes.NewBuffer(rawResponse))
+
+	// Convert headers to a string
+	headersString := ""
+	for key, values := range response.Header {
+		headersString += key + ": " + fmt.Sprintf("%v", values) + "\n"
+	}
+
+	// Print raw response headers and body
+	DDNSLogger(DebugLog, "", "", "Response headers:\n"+headersString)
+	DDNSLogger(DebugLog, "", "", "Response body: "+string(rawResponse))
+
+	err = json.Unmarshal(rawResponse, &ipbody)
+	if err != nil {
+		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched: " + err.Error())}
 	}
 
 	if ipbody.IP == "" {
 		return "", &CustomError{ErrorCode: response.StatusCode, Err: errors.New("IP could not be fetched. Empty IP value detected")}
 	}
 
-	return ipbody.IP, nil
+	DDNSLogger(DebugLog, "", "", "IP fetched: "+ipbody.IP)
 
+	return ipbody.IP, nil
 }
 
 func setDNSRecord(host, domain, password, pubIp string) error {
@@ -133,8 +166,8 @@ func setDNSRecord(host, domain, password, pubIp string) error {
 	}
 
 	type InterfaceResponse struct {
-		ErrorCount int            `xml:"ErrCount"`
-		Errors     InterfaceError `xml:"errors"`
+		ErrorCount int			`xml:"ErrCount"`
+		Errors	 InterfaceError `xml:"errors"`
 	}
 
 	var interfaceResponse InterfaceResponse
