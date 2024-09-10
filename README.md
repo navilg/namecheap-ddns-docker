@@ -43,9 +43,11 @@ Here,
 
 `NC_PASS` is your Dynamic DDNS password which is generated from Namecheap.
 
-You can also use an additional optional env variable:
+You can also use an additional optional env variables:
 
 `CUSTOM_IPCHECK_URL` is an optional variable where you can specify any URL that is used to get the current IP. The program uses HTTP GET method without additional parameters and expects a valid JSON with `ip` field.
+
+`LOG_LEVEL` can be DEBUG, INFO, WARN, ERROR. Default is INFO
 
 * Check the log
 

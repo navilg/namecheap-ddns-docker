@@ -8,19 +8,19 @@ import (
 
 // LogLevel constants
 const (
-	DebugLog	   string = "DEBUG"
+	DebugLog       string = "DEBUG"
 	InformationLog string = "INFO"
-	WarningLog	   string = "WARN"
-	ErrorLog	   string = "ERROR"
+	WarningLog     string = "WARN"
+	ErrorLog       string = "ERROR"
 )
 
 var (
-	logLevel			string
-	StdoutInfoLogger	*log.Logger
+	logLevel            string
+	StdoutInfoLogger    *log.Logger
 	StdoutWarningLogger *log.Logger
 	StdoutErrorLogger   *log.Logger
 	StdoutDebugLogger   *log.Logger
-	logLevelPriority	map[string]int
+	logLevelPriority    map[string]int
 )
 
 func init() {
@@ -32,10 +32,10 @@ func init() {
 	
 	// Initialize log level priorities
 	logLevelPriority = map[string]int{
-		DebugLog:		1,
+		DebugLog:       1,
 		InformationLog: 2,
-		WarningLog:		3,
-		ErrorLog:		4,
+		WarningLog:     3,
+		ErrorLog:       4,
 	}
 }
 

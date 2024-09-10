@@ -27,10 +27,10 @@ func main() {
 
 	// Validate log level
 	validLogLevels := map[string]bool{
-		DebugLog:		true,
+		DebugLog:       true,
 		InformationLog: true,
-		WarningLog:		true,
-		ErrorLog:		true,
+		WarningLog:     true,
+		ErrorLog:       true,
 	}
 
 	if !validLogLevels[logLevel] {
