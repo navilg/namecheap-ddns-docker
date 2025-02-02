@@ -29,7 +29,7 @@ func DDNSLogger(logType, host, domain, message string) {
 	} else if logType == "WARN" {
 		StdoutWarningLogger.Println(host+"."+domain, message)
 	} else if logType == "ERROR" {
-		StdoutErrorLogger.Println(host+"."+domain, message)
+		StdoutErrorLogger.Fatalln(host+"."+domain, message)
 	} else {
 		fmt.Println(host+"."+domain, message)
 	}
