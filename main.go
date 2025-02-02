@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"os"
 )
 
@@ -27,6 +28,9 @@ func main() {
 	if err != nil {
 		DDNSLogger(ErrorLog, *host, *domain, err.Error())
 	} else {
+		if parsedIp := net.ParseIP(pubIp); parsedIp == nil {
+			DDNSLogger(ErrorLog, *host, *domain, "Empty pubIp (This could be due to non-existent of public IP)")
+		}
 		if err = setDNSRecord(*host, *domain, *password, pubIp); err != nil {
 			DDNSLogger(ErrorLog, *host, *domain, err.Error())
 			DDNSLogger(WarningLog, *host, *domain, "Ignoring above error. If this is not right, Re-run the process after fixing the error")

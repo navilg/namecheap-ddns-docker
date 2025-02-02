@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -30,6 +31,10 @@ func updateRecord(domain, host, password string) {
 				pubIp, err := getPubIP()
 				if err != nil {
 					DDNSLogger(ErrorLog, host, domain, err.Error())
+				}
+
+				if parsedIp := net.ParseIP(pubIp); parsedIp == nil {
+					DDNSLogger(ErrorLog, host, domain, "Empty pubIp (This could be due to non-existent of public IP)")
 				}
 
 				currentIp := os.Getenv("NC_PUB_IP")
