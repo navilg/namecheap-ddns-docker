@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   namecheap-ddns:
     container_name: namecheap-ddns
