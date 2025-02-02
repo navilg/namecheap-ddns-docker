@@ -29,7 +29,7 @@ func main() {
 		DDNSLogger(ErrorLog, *host, *domain, err.Error())
 	} else {
 		if parsedIp := net.ParseIP(pubIp); parsedIp == nil {
-			DDNSLogger(ErrorLog, *host, *domain, "Empty pubIp (This could be due to non-existent of public IP or internet issue)")
+			DDNSLogger(ErrorLog, *host, *domain, "Invalid pubIp - "+pubIp+" (This could be due to non-existent of public IP or internet issue)")
 		}
 		if err = setDNSRecord(*host, *domain, *password, pubIp); err != nil {
 			DDNSLogger(ErrorLog, *host, *domain, err.Error())

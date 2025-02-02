@@ -34,7 +34,7 @@ func updateRecord(domain, host, password string) {
 				}
 
 				if parsedIp := net.ParseIP(pubIp); parsedIp == nil {
-					DDNSLogger(ErrorLog, host, domain, "Empty pubIp (This could be due to non-existent of public IP or internet issue)")
+					DDNSLogger(ErrorLog, host, domain, "Invalid pubIp - "+pubIp+" (This could be due to non-existent of public IP or internet issue)")
 				}
 
 				currentIp := os.Getenv("NC_PUB_IP")
